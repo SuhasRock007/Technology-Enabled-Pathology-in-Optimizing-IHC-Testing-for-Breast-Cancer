@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}Upload Analysis - Virtual IHC Analysis System{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-lg-8">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="card-title mb-0">
+                    <i data-feather="upload"></i>
+                    Upload H&E Stained Slide
+                </h3>
+            </div>
+            <div class="card-body">
+                <p class="text-muted mb-4">
+                    Upload your H&E (Hematoxylin and Eosin) stained tissue slide image to begin 
+                    the two-phase analysis process. The system will generate a virtual IHC image 
+                    and predict cancer severity automatically.
+                </p>
+
+                <form action="{{ url_for('process_image_route') }}" method="post" enctype="multipart/form-data" id="uploadForm">
+                    <div class="mb-4">
+                        <label for="he_image" class="form-label">
+                            <i data-feather="file"></i>
+                            Select H&E Image File
+                        </label>
+                        <input type="file" 
+                               class="form-control" 
+                               id="he_image" 
+                               name="he_image" 
+                               accept=".png,.jpg,.jpeg,.tiff,.tif"
+                               required>
+                        <div class="form-text">
+                            Supported formats: PNG, JPEG, TIFF. Maximum file size: 16MB
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <div id="imagePreview" class="d-none">
+                            <h6 class="mb-2">
+                                <i data-feather="eye"></i>
+                                Image Preview
+                            </h6>
+                            <img id="previewImg" src="" alt="Preview" class="img-fluid rounded border" style="max-height: 300px;">
+                            <div class="mt-2" id="imageInfo"></div>
+                        </div>
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="submit" class="btn btn-primary btn-lg" id="submitBtn">
+                            <i data-feather="zap"></i>
+                            Start Analysis
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Process Information -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="info"></i>
+                    Analysis Process
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h6>
+                            <i data-feather="image" class="text-primary"></i>
+                            Phase 1: Virtual IHC Generation
+                        </h6>
+                        <ul class="list-unstyled small">
+                            <li>• Image preprocessing and normalization</li>
+                            <li>• Pix2Pix GAN model inference</li>
+                            <li>• Virtual IHC image generation</li>
+                            <li>• Quality assessment and validation</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h6>
+                            <i data-feather="activity" class="text-success"></i>
+                            Phase 2: Cancer Analysis
+                        </h6>
+                        <ul class="list-unstyled small">
+                            <li>• CNN-based classification</li>
+                            <li>• HER2 expression prediction</li>
+                            <li>• Biomarker quantification</li>
+                            <li>• Diagnostic report generation</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Guidelines -->
+        <div class="card mt-4">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="clipboard"></i>
+                    Image Guidelines
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-4">
+                        <div class="text-center mb-3">
+                            <div class="bg-success text-white rounded-circle p-2 d-inline-flex mb-2">
+                                <i data-feather="check"></i>
+                            </div>
+                            <h6 class="text-success">Good Quality</h6>
+                            <ul class="list-unstyled small text-muted">
+                                <li>• Clear tissue morphology</li>
+                                <li>• Proper H&E staining</li>
+                                <li>• High resolution</li>
+                                <li>• Minimal artifacts</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center mb-3">
+                            <div class="bg-warning text-dark rounded-circle p-2 d-inline-flex mb-2">
+                                <i data-feather="alert-triangle"></i>
+                            </div>
+                            <h6 class="text-warning">Caution</h6>
+                            <ul class="list-unstyled small text-muted">
+                                <li>• Blurred images</li>
+                                <li>• Uneven staining</li>
+                                <li>• Low contrast</li>
+                                <li>• Partial tissue coverage</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="text-center mb-3">
+                            <div class="bg-danger text-white rounded-circle p-2 d-inline-flex mb-2">
+                                <i data-feather="x"></i>
+                            </div>
+                            <h6 class="text-danger">Avoid</h6>
+                            <ul class="list-unstyled small text-muted">
+                                <li>• Non-H&E stained images</li>
+                                <li>• Severely damaged tissue</li>
+                                <li>• Poor quality scans</li>
+                                <li>• Wrong file formats</li>
+                            </ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Processing Modal -->
+<div class="modal fade" id="processingModal" tabindex="-1" data-bs-backdrop="static" data-bs-keyboard="false">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body text-center p-4">
+                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Processing...</span>
+                </div>
+                <h5>Processing Your Image</h5>
+                <p class="text-muted mb-0">
+                    Please wait while we generate the virtual IHC image and analyze cancer severity.
+                    This may take a few minutes.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const fileInput = document.getElementById('he_image');
+    const imagePreview = document.getElementById('imagePreview');
+    const previewImg = document.getElementById('previewImg');
+    const imageInfo = document.getElementById('imageInfo');
+    const uploadForm = document.getElementById('uploadForm');
+    const submitBtn = document.getElementById('submitBtn');
+    const processingModal = new bootstrap.Modal(document.getElementById('processingModal'));
+
+    // File preview functionality
+    fileInput.addEventListener('change', function(e) {
+        const file = e.target.files[0];
+        if (file) {
+            // Validate file type
+            const validTypes = ['image/png', 'image/jpeg', 'image/tiff'];
+            if (!validTypes.includes(file.type)) {
+                alert('Please select a valid image file (PNG, JPEG, or TIFF).');
+                fileInput.value = '';
+                imagePreview.classList.add('d-none');
+                return;
+            }
+
+            // Validate file size (16MB)
+            if (file.size > 16 * 1024 * 1024) {
+                alert('File size must be less than 16MB.');
+                fileInput.value = '';
+                imagePreview.classList.add('d-none');
+                return;
+            }
+
+            // Show preview
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                previewImg.src = e.target.result;
+                imagePreview.classList.remove('d-none');
+                
+                // Show file info
+                const fileSize = (file.size / 1024 / 1024).toFixed(2);
+                imageInfo.innerHTML = `
+                    <small class="text-muted">
+                        <strong>File:</strong> ${file.name}<br>
+                        <strong>Size:</strong> ${fileSize} MB<br>
+                        <strong>Type:</strong> ${file.type}
+                    </small>
+                `;
+            };
+            reader.readAsDataURL(file);
+        } else {
+            imagePreview.classList.add('d-none');
+        }
+    });
+
+    // Form submission
+    uploadForm.addEventListener('submit', function(e) {
+        if (!fileInput.files[0]) {
+            e.preventDefault();
+            alert('Please select an image file to upload.');
+            return;
+        }
+
+        // Show processing modal
+        submitBtn.disabled = true;
+        submitBtn.innerHTML = '<i data-feather="loader" class="spinning"></i> Processing...';
+        processingModal.show();
+    });
+});
+</script>
+{% endblock %}

@@ -1,0 +1,302 @@
+{% extends "base.html" %}
+
+{% block title %}Diagnostic Report - Virtual IHC Analysis System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i data-feather="file-text"></i>
+                Diagnostic Report
+            </h2>
+            <div class="d-print-none">
+                <button onclick="window.print()" class="btn btn-outline-secondary me-2">
+                    <i data-feather="printer"></i>
+                    Print Report
+                </button>
+                <a href="{{ url_for('download_report', session_id=session.session_id) }}" class="btn btn-primary">
+                    <i data-feather="download"></i>
+                    Download PDF
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Report Header -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <div class="row align-items-center">
+                    <div class="col-md-8">
+                        <h3 class="mb-3">Virtual IHC Analysis Report</h3>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Session ID:</strong> {{ session.session_id }}</p>
+                                <p class="mb-1"><strong>Original File:</strong> {{ session.original_filename }}</p>
+                                <p class="mb-1"><strong>Analysis Date:</strong> {{ session.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                            </div>
+                            <div class="col-md-6">
+                                <p class="mb-1"><strong>Report Type:</strong> {{ report.report_type.title() }}</p>
+                                <p class="mb-1"><strong>Generated:</strong> {{ report.created_at.strftime('%Y-%m-%d %H:%M:%S') }}</p>
+                                <p class="mb-1">
+                                    <strong>Status:</strong> 
+                                    <span class="badge bg-success">{{ session.processing_status.upper() }}</span>
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-4 text-center">
+                        <div class="bg-primary text-white rounded p-3">
+                            <i data-feather="microscope" style="width: 48px; height: 48px;"></i>
+                            <p class="mb-0 mt-2">AI-Powered<br>Medical Analysis</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Primary Results -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">
+                    <i data-feather="target"></i>
+                    Primary Analysis Results
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <div class="col-md-6">
+                        <h5>HER2 Expression Analysis</h5>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>HER2 Status:</span>
+                                <span class="badge fs-6 {{ 'bg-danger' if session.her2_prediction == 'positive' else 'bg-success' if session.her2_prediction == 'negative' else 'bg-warning' }}">
+                                    {{ session.her2_prediction.upper() if session.her2_prediction else 'NOT DETERMINED' }}
+                                </span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Confidence Score:</span>
+                                <span class="fw-bold">{{ "%.1f"|format(session.confidence_score * 100) if session.confidence_score else 'N/A' }}%</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Biomarker Expression:</span>
+                                <span class="fw-bold">{{ "%.1f"|format(session.biomarker_percentage) if session.biomarker_percentage else 'N/A' }}%</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Staining Intensity:</span>
+                                <span class="badge {{ 'bg-danger' if session.staining_intensity == 'strong' else 'bg-warning' if session.staining_intensity == 'moderate' else 'bg-secondary' }}">
+                                    {{ session.staining_intensity.upper() if session.staining_intensity else 'NOT ASSESSED' }}
+                                </span>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <h5>Cancer Grading</h5>
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Cancer Grade:</span>
+                                <span class="badge bg-info fs-6">{{ session.cancer_grade or 'NOT DETERMINED' }}</span>
+                            </div>
+                            {% if report.positive_cell_count and report.total_cell_count %}
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Positive Cells:</span>
+                                <span class="fw-bold">{{ report.positive_cell_count }} / {{ report.total_cell_count }}</span>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center mb-2">
+                                <span>Positive Ratio:</span>
+                                <span class="fw-bold">{{ "%.1f"|format((report.positive_cell_count / report.total_cell_count) * 100) }}%</span>
+                            </div>
+                            {% endif %}
+                            {% if report.stained_area_percentage %}
+                            <div class="d-flex justify-content-between align-items-center">
+                                <span>Stained Area:</span>
+                                <span class="fw-bold">{{ "%.1f"|format(report.stained_area_percentage) }}%</span>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Images Section -->
+<div class="row mb-4">
+    <div class="col-md-6 mb-3">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="image"></i>
+                    Original H&E Image
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <img src="{{ url_for('static', filename='../') }}{{ session.he_image_path }}" 
+                     alt="H&E Stained Slide" 
+                     class="img-fluid rounded border"
+                     style="max-height: 300px; object-fit: contain;">
+            </div>
+        </div>
+    </div>
+    <div class="col-md-6 mb-3">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="zap"></i>
+                    Generated Virtual IHC
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                {% if session.ihc_image_path %}
+                <img src="{{ url_for('static', filename='../') }}{{ session.ihc_image_path }}" 
+                     alt="Virtual IHC Image" 
+                     class="img-fluid rounded border"
+                     style="max-height: 300px; object-fit: contain;">
+                {% else %}
+                <div class="text-muted py-5">
+                    <i data-feather="alert-triangle"></i>
+                    <p>Virtual IHC image not available</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Summary Section -->
+{% if report.summary %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">
+                    <i data-feather="clipboard"></i>
+                    Summary
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="bg-light p-3 rounded">
+                    {{ report.summary|replace('\n', '<br>')|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Recommendations Section -->
+{% if report.recommendations %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">
+                    <i data-feather="compass"></i>
+                    Clinical Recommendations
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="bg-info bg-opacity-10 p-3 rounded">
+                    {{ report.recommendations|replace('\n', '<br>')|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Technical Notes Section -->
+{% if report.technical_notes %}
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">
+                    <i data-feather="settings"></i>
+                    Technical Notes
+                </h4>
+            </div>
+            <div class="card-body">
+                <div class="bg-secondary bg-opacity-10 p-3 rounded">
+                    {{ report.technical_notes|replace('\n', '<br>')|safe }}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Disclaimer -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-warning">
+            <div class="card-header bg-warning text-dark">
+                <h5 class="card-title mb-0">
+                    <i data-feather="alert-triangle"></i>
+                    Important Disclaimer
+                </h5>
+            </div>
+            <div class="card-body">
+                <p class="mb-2">
+                    <strong>For Research and Educational Purposes Only:</strong> 
+                    This report is generated using AI-based virtual IHC analysis and is intended for research and educational purposes only.
+                </p>
+                <p class="mb-2">
+                    <strong>Clinical Validation Required:</strong> 
+                    Results should be validated with traditional IHC methods and confirmed by qualified pathologists before making any clinical decisions.
+                </p>
+                <p class="mb-0">
+                    <strong>Not a Diagnostic Tool:</strong> 
+                    This system does not replace professional medical diagnosis or treatment recommendations.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Footer Information -->
+<div class="row d-print-none">
+    <div class="col-12 text-center">
+        <div class="border-top pt-3">
+            <p class="text-muted mb-2">
+                Generated by Virtual IHC Analysis System - Academic Final Year Project
+            </p>
+            <p class="text-muted mb-0 small">
+                Report generated on {{ report.created_at.strftime('%B %d, %Y at %H:%M:%S') }}
+            </p>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_scripts %}
+<style media="print">
+    .d-print-none {
+        display: none !important;
+    }
+    
+    .card {
+        border: 1px solid #dee2e6 !important;
+        page-break-inside: avoid;
+    }
+    
+    .badge {
+        color: #000 !important;
+        background: #f8f9fa !important;
+        border: 1px solid #dee2e6 !important;
+    }
+    
+    body {
+        -webkit-print-color-adjust: exact;
+        color-adjust: exact;
+    }
+</style>
+{% endblock %}

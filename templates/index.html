@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+
+{% block title %}Home - Virtual IHC Analysis System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <!-- Hero Section -->
+        <div class="bg-primary text-white p-5 rounded mb-5">
+            <div class="row align-items-center">
+                <div class="col-md-8">
+                    <h1 class="display-4 fw-bold">
+                        <i data-feather="zap"></i>
+                        Virtual IHC Analysis System
+                    </h1>
+                    <p class="lead mb-4">
+                        Transform H&E stained tissue slides into virtual IHC images using advanced deep learning, 
+                        then predict cancer severity for comprehensive diagnostic reporting.
+                    </p>
+                    <a href="{{ url_for('upload_page') }}" class="btn btn-light btn-lg">
+                        <i data-feather="upload"></i>
+                        Start Analysis
+                    </a>
+                </div>
+                <div class="col-md-4 text-center">
+                    <i data-feather="microscope" style="width: 120px; height: 120px;"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="text-center mb-4">
+            <i data-feather="layers"></i>
+            Two-Phase Analysis Process
+        </h2>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <!-- Phase 1 -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-primary text-white rounded-circle p-3 me-3">
+                        <i data-feather="image" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h4 class="card-title mb-0">Phase 1: H&E to IHC Conversion</h4>
+                </div>
+                <p class="card-text">
+                    Using advanced Pix2Pix GAN models, we convert standard H&E (Hematoxylin and Eosin) 
+                    stained tissue slides into virtual IHC (Immunohistochemical) images.
+                </p>
+                <ul class="list-unstyled">
+                    <li><i data-feather="check" class="text-success"></i> Non-destructive tissue analysis</li>
+                    <li><i data-feather="check" class="text-success"></i> Cost-effective alternative to traditional IHC</li>
+                    <li><i data-feather="check" class="text-success"></i> Preserves tissue integrity</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- Phase 2 -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-body">
+                <div class="d-flex align-items-center mb-3">
+                    <div class="bg-success text-white rounded-circle p-3 me-3">
+                        <i data-feather="activity" style="width: 24px; height: 24px;"></i>
+                    </div>
+                    <h4 class="card-title mb-0">Phase 2: Cancer Severity Prediction</h4>
+                </div>
+                <p class="card-text">
+                    Advanced CNN classifiers analyze the generated virtual IHC images to predict 
+                    cancer severity, HER2 expression levels, and generate comprehensive diagnostic reports.
+                </p>
+                <ul class="list-unstyled">
+                    <li><i data-feather="check" class="text-success"></i> HER2 expression analysis</li>
+                    <li><i data-feather="check" class="text-success"></i> Biomarker quantification</li>
+                    <li><i data-feather="check" class="text-success"></i> Automated report generation</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-12">
+        <h2 class="text-center mb-4">
+            <i data-feather="star"></i>
+            Key Features
+        </h2>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-md-4 mb-3">
+        <div class="text-center">
+            <div class="bg-info text-white rounded-circle p-3 d-inline-flex mb-3">
+                <i data-feather="clock" style="width: 32px; height: 32px;"></i>
+            </div>
+            <h5>Fast Processing</h5>
+            <p class="text-muted">
+                Generate virtual IHC images and analysis results in minutes, 
+                not hours like traditional methods.
+            </p>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="text-center">
+            <div class="bg-warning text-dark rounded-circle p-3 d-inline-flex mb-3">
+                <i data-feather="shield" style="width: 32px; height: 32px;"></i>
+            </div>
+            <h5>Non-Destructive</h5>
+            <p class="text-muted">
+                Preserve your valuable tissue samples while obtaining 
+                multiple marker analyses from a single H&E slide.
+            </p>
+        </div>
+    </div>
+
+    <div class="col-md-4 mb-3">
+        <div class="text-center">
+            <div class="bg-danger text-white rounded-circle p-3 d-inline-flex mb-3">
+                <i data-feather="file-text" style="width: 32px; height: 32px;"></i>
+            </div>
+            <h5>Comprehensive Reports</h5>
+            <p class="text-muted">
+                Generate detailed diagnostic reports with quantitative analysis 
+                and treatment recommendations.
+            </p>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h3 class="card-title">
+                    <i data-feather="info"></i>
+                    How It Works
+                </h3>
+                <div class="row">
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="bg-primary text-white rounded-circle p-3 d-inline-flex mb-2">
+                            <span class="fw-bold">1</span>
+                        </div>
+                        <h6>Upload H&E Image</h6>
+                        <p class="small text-muted">Upload your H&E stained tissue slide image</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="bg-primary text-white rounded-circle p-3 d-inline-flex mb-2">
+                            <span class="fw-bold">2</span>
+                        </div>
+                        <h6>Generate Virtual IHC</h6>
+                        <p class="small text-muted">AI converts H&E to virtual IHC image</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="bg-primary text-white rounded-circle p-3 d-inline-flex mb-2">
+                            <span class="fw-bold">3</span>
+                        </div>
+                        <h6>Analyze Severity</h6>
+                        <p class="small text-muted">CNN predicts cancer severity and biomarkers</p>
+                    </div>
+                    <div class="col-md-3 text-center mb-3">
+                        <div class="bg-primary text-white rounded-circle p-3 d-inline-flex mb-2">
+                            <span class="fw-bold">4</span>
+                        </div>
+                        <h6>Generate Report</h6>
+                        <p class="small text-muted">Download comprehensive diagnostic report</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-12 text-center">
+        <div class="alert alert-warning">
+            <i data-feather="alert-triangle"></i>
+            <strong>Academic Project Notice:</strong> 
+            This system is developed for research and educational purposes. 
+            Results should be validated with traditional IHC methods for clinical decision-making.
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,343 @@
+{% extends "base.html" %}
+
+{% block title %}Analysis Results - Virtual IHC Analysis System{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i data-feather="bar-chart-2"></i>
+                Analysis Results
+            </h2>
+            {% if session.processing_status == 'completed' %}
+            <div>
+                <a href="{{ url_for('report', session_id=session.session_id) }}" class="btn btn-outline-primary me-2">
+                    <i data-feather="file-text"></i>
+                    View Full Report
+                </a>
+                <a href="{{ url_for('download_report', session_id=session.session_id) }}" class="btn btn-primary">
+                    <i data-feather="download"></i>
+                    Download PDF
+                </a>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+
+<!-- Session Information -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body">
+                <h5 class="card-title">
+                    <i data-feather="info"></i>
+                    Session Information
+                </h5>
+                <div class="row">
+                    <div class="col-md-3">
+                        <small class="text-muted">Session ID</small>
+                        <p class="mb-2"><code>{{ session.session_id[:8] }}...</code></p>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted">Original File</small>
+                        <p class="mb-2">{{ session.original_filename }}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted">Analysis Date</small>
+                        <p class="mb-2">{{ session.created_at.strftime('%Y-%m-%d %H:%M') }}</p>
+                    </div>
+                    <div class="col-md-3">
+                        <small class="text-muted">Status</small>
+                        <p class="mb-2">
+                            <span class="badge {{ 'bg-warning' if processing else 'bg-danger' if failed else 'bg-success' }}">
+                                {{ session.processing_status.upper() }}
+                            </span>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% if processing %}
+<!-- Processing State -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-body text-center py-5">
+                <div class="spinner-border text-primary mb-3" role="status" style="width: 3rem; height: 3rem;">
+                    <span class="visually-hidden">Processing...</span>
+                </div>
+                <h4>Analysis In Progress</h4>
+                <p class="text-muted">
+                    Your H&E image is being processed. Please wait while we generate the virtual IHC image 
+                    and analyze cancer severity. This may take a few minutes.
+                </p>
+                <button class="btn btn-outline-primary" onclick="window.location.reload()">
+                    <i data-feather="refresh-cw"></i>
+                    Refresh Status
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% elif failed %}
+<!-- Failed State -->
+<div class="row">
+    <div class="col-12">
+        <div class="card border-danger">
+            <div class="card-body text-center py-5">
+                <i data-feather="alert-circle" class="text-danger mb-3" style="width: 48px; height: 48px;"></i>
+                <h4 class="text-danger">Analysis Failed</h4>
+                <p class="text-muted">
+                    {{ session.error_message or 'An unexpected error occurred during processing.' }}
+                </p>
+                <a href="{{ url_for('upload_page') }}" class="btn btn-primary">
+                    <i data-feather="upload"></i>
+                    Try Another Image
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+
+{% else %}
+<!-- Completed Results -->
+<div class="row mb-4">
+    <!-- Original H&E Image -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="image"></i>
+                    Original H&E Image
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                <img src="{{ url_for('static', filename='../') }}{{ session.he_image_path }}" 
+                     alt="H&E Stained Slide" 
+                     class="img-fluid rounded border"
+                     style="max-height: 300px; object-fit: contain;">
+            </div>
+        </div>
+    </div>
+
+    <!-- Generated IHC Image -->
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="zap"></i>
+                    Generated Virtual IHC
+                </h5>
+            </div>
+            <div class="card-body text-center">
+                {% if session.ihc_image_path %}
+                <img src="{{ url_for('static', filename='../') }}{{ session.ihc_image_path }}" 
+                     alt="Virtual IHC Image" 
+                     class="img-fluid rounded border"
+                     style="max-height: 300px; object-fit: contain;">
+                {% else %}
+                <div class="text-muted py-5">
+                    <i data-feather="alert-triangle"></i>
+                    <p>Virtual IHC image not available</p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Analysis Results -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="activity"></i>
+                    Cancer Analysis Results
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row">
+                    <!-- HER2 Status -->
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <div class="mb-2">
+                                <span class="badge fs-6 {{ 'bg-danger' if session.her2_prediction == 'positive' else 'bg-success' if session.her2_prediction == 'negative' else 'bg-warning' }}">
+                                    {{ session.her2_prediction.upper() if session.her2_prediction else 'NOT DETERMINED' }}
+                                </span>
+                            </div>
+                            <h6>HER2 Status</h6>
+                            {% if session.confidence_score %}
+                            <small class="text-muted">Confidence: {{ "%.1f"|format(session.confidence_score * 100) }}%</small>
+                            {% endif %}
+                        </div>
+                    </div>
+
+                    <!-- Cancer Grade -->
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <div class="mb-2">
+                                <span class="badge bg-info fs-6">
+                                    {{ session.cancer_grade or 'NOT DETERMINED' }}
+                                </span>
+                            </div>
+                            <h6>Cancer Grade</h6>
+                            <small class="text-muted">Morphological assessment</small>
+                        </div>
+                    </div>
+
+                    <!-- Biomarker Expression -->
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <div class="mb-2">
+                                <span class="fs-4 fw-bold text-primary">
+                                    {{ "%.1f"|format(session.biomarker_percentage) if session.biomarker_percentage else 'N/A' }}%
+                                </span>
+                            </div>
+                            <h6>Biomarker Expression</h6>
+                            <small class="text-muted">Percentage of positive tissue</small>
+                        </div>
+                    </div>
+
+                    <!-- Staining Intensity -->
+                    <div class="col-md-3 mb-3">
+                        <div class="text-center">
+                            <div class="mb-2">
+                                <span class="badge {{ 'bg-danger' if session.staining_intensity == 'strong' else 'bg-warning' if session.staining_intensity == 'moderate' else 'bg-secondary' }} fs-6">
+                                    {{ session.staining_intensity.upper() if session.staining_intensity else 'NOT ASSESSED' }}
+                                </span>
+                            </div>
+                            <h6>Staining Intensity</h6>
+                            <small class="text-muted">Immunoreactive signal strength</small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Quantitative Analysis -->
+{% if report %}
+<div class="row mb-4">
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="pie-chart"></i>
+                    Cell Count Analysis
+                </h5>
+            </div>
+            <div class="card-body">
+                <canvas id="cellCountChart" width="400" height="300"></canvas>
+                {% if report.positive_cell_count and report.total_cell_count %}
+                <div class="mt-3 text-center">
+                    <p class="mb-1">
+                        <strong>Positive Cells:</strong> {{ report.positive_cell_count }}
+                    </p>
+                    <p class="mb-1">
+                        <strong>Total Cells:</strong> {{ report.total_cell_count }}
+                    </p>
+                    <p class="mb-0">
+                        <strong>Positive Rate:</strong> {{ "%.1f"|format((report.positive_cell_count / report.total_cell_count) * 100) }}%
+                    </p>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6 mb-4">
+        <div class="card h-100">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="trending-up"></i>
+                    Analysis Summary
+                </h5>
+            </div>
+            <div class="card-body">
+                {% if report.summary %}
+                <div class="bg-light p-3 rounded">
+                    {{ report.summary|replace('\n', '<br>')|safe }}
+                </div>
+                {% else %}
+                <p class="text-muted">Summary not available for this analysis.</p>
+                {% endif %}
+                
+                {% if session.completed_at and session.created_at %}
+                <hr>
+                <p class="mb-0 small text-muted">
+                    <i data-feather="clock"></i>
+                    Processing time: {{ (session.completed_at - session.created_at).total_seconds() }} seconds
+                </p>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
+<!-- Action Buttons -->
+<div class="row">
+    <div class="col-12 text-center">
+        <a href="{{ url_for('upload_page') }}" class="btn btn-outline-primary me-2">
+            <i data-feather="upload"></i>
+            Analyze Another Image
+        </a>
+        {% if session.processing_status == 'completed' %}
+        <a href="{{ url_for('report', session_id=session.session_id) }}" class="btn btn-primary">
+            <i data-feather="file-text"></i>
+            View Detailed Report
+        </a>
+        {% endif %}
+    </div>
+</div>
+
+{% endif %}
+{% endblock %}
+
+{% block extra_scripts %}
+{% if session.processing_status == 'completed' and report and report.positive_cell_count %}
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    // Cell Count Pie Chart
+    const ctx = document.getElementById('cellCountChart').getContext('2d');
+    const positiveCells = {{ report.positive_cell_count }};
+    const totalCells = {{ report.total_cell_count }};
+    const negativeCells = totalCells - positiveCells;
+
+    new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Positive Cells', 'Negative Cells'],
+            datasets: [{
+                data: [positiveCells, negativeCells],
+                backgroundColor: ['#dc3545', '#28a745'],
+                borderWidth: 2,
+                borderColor: '#ffffff'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom'
+                }
+            }
+        }
+    });
+});
+</script>
+{% endif %}
+{% endblock %}

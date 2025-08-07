@@ -1,0 +1,167 @@
+{% extends "base.html" %}
+
+{% block title %}Profile - Virtual IHC Analysis System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i data-feather="user"></i>
+                User Profile
+            </h2>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-4 mb-4">
+        <div class="card">
+            <div class="card-body text-center">
+                <div class="mb-3">
+                    <div class="bg-primary text-white rounded-circle d-inline-flex align-items-center justify-content-center" 
+                         style="width: 80px; height: 80px; font-size: 2rem;">
+                        {{ current_user.first_name[0] }}{{ current_user.last_name[0] }}
+                    </div>
+                </div>
+                <h4>{{ current_user.get_full_name() }}</h4>
+                <p class="text-muted">{{ current_user.role.title() }}</p>
+                {% if current_user.institution %}
+                <p class="text-muted">
+                    <i data-feather="building"></i>
+                    {{ current_user.institution }}
+                </p>
+                {% endif %}
+                <p class="text-muted small">
+                    <i data-feather="calendar"></i>
+                    Member since {{ current_user.created_at.strftime('%B %Y') }}
+                </p>
+            </div>
+        </div>
+    </div>
+    
+    <div class="col-md-8 mb-4">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="info"></i>
+                    Profile Information
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <strong>Username:</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        {{ current_user.username }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <strong>Email:</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        {{ current_user.email }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <strong>Full Name:</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        {{ current_user.get_full_name() }}
+                    </div>
+                </div>
+                
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <strong>Role:</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        <span class="badge bg-info">{{ current_user.role.title() }}</span>
+                    </div>
+                </div>
+                
+                {% if current_user.institution %}
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <strong>Institution:</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        {{ current_user.institution }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <strong>Account Status:</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        <span class="badge bg-success">Active</span>
+                    </div>
+                </div>
+                
+                {% if current_user.last_login %}
+                <div class="row mb-3">
+                    <div class="col-sm-3">
+                        <strong>Last Login:</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        {{ current_user.last_login.strftime('%Y-%m-%d %H:%M:%S') }}
+                    </div>
+                </div>
+                {% endif %}
+                
+                <div class="row">
+                    <div class="col-sm-3">
+                        <strong>Member Since:</strong>
+                    </div>
+                    <div class="col-sm-9">
+                        {{ current_user.created_at.strftime('%Y-%m-%d %H:%M:%S') }}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Account Actions -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h5 class="card-title mb-0">
+                    <i data-feather="settings"></i>
+                    Account Actions
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex gap-2">
+                    <button class="btn btn-outline-primary" disabled>
+                        <i data-feather="edit-2"></i>
+                        Edit Profile
+                    </button>
+                    <button class="btn btn-outline-secondary" disabled>
+                        <i data-feather="key"></i>
+                        Change Password
+                    </button>
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-primary">
+                        <i data-feather="arrow-left"></i>
+                        Back to Dashboard
+                    </a>
+                </div>
+                <p class="text-muted mt-3 mb-0">
+                    <small>
+                        <i data-feather="info"></i>
+                        Profile editing and password changes are not implemented in this demo version.
+                    </small>
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

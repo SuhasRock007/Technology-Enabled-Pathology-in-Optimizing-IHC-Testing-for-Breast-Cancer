@@ -2,9 +2,10 @@ import os
 import uuid
 from datetime import datetime
 from flask import render_template, request, redirect, url_for, flash, jsonify, send_file
+from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.utils import secure_filename
 from app import app, db
-from models import AnalysisSession, ReportData
+from models import AnalysisSession, ReportData, User
 from ml_models import HEToIHCConverter, CancerClassifier
 from utils import allowed_file, process_image, generate_report_pdf
 import logging
@@ -19,11 +20,13 @@ def index():
     return render_template('index.html')
 
 @app.route('/upload')
+@login_required
 def upload_page():
     """Upload page for H&E stained slides"""
     return render_template('upload.html')
 
 @app.route('/process_image', methods=['POST'])
+@login_required
 def process_image_route():
     """Process uploaded H&E image through the two-phase pipeline"""
     try:
@@ -51,6 +54,7 @@ def process_image_route():
         # Create analysis session record
         analysis_session = AnalysisSession()
         analysis_session.session_id = session_id
+        analysis_session.user_id = current_user.id
         analysis_session.original_filename = filename
         analysis_session.he_image_path = he_image_path
         analysis_session.processing_status = 'processing'
@@ -126,9 +130,10 @@ def process_image_route():
         return redirect(url_for('upload_page'))
 
 @app.route('/results/<session_id>')
+@login_required
 def results(session_id):
     """Display analysis results"""
-    session = AnalysisSession.query.filter_by(session_id=session_id).first_or_404()
+    session = AnalysisSession.query.filter_by(session_id=session_id, user_id=current_user.id).first_or_404()
     report = ReportData.query.filter_by(session_id=session_id).first()
     
     if session.processing_status == 'processing':
@@ -142,9 +147,10 @@ def results(session_id):
     return render_template('results.html', session=session, report=report)
 
 @app.route('/report/<session_id>')
+@login_required
 def report(session_id):
     """Display detailed diagnostic report"""
-    session = AnalysisSession.query.filter_by(session_id=session_id).first_or_404()
+    session = AnalysisSession.query.filter_by(session_id=session_id, user_id=current_user.id).first_or_404()
     report = ReportData.query.filter_by(session_id=session_id).first()
     
     if not report:
@@ -154,9 +160,10 @@ def report(session_id):
     return render_template('report.html', session=session, report=report)
 
 @app.route('/download_report/<session_id>')
+@login_required
 def download_report(session_id):
     """Download PDF report"""
-    session = AnalysisSession.query.filter_by(session_id=session_id).first_or_404()
+    session = AnalysisSession.query.filter_by(session_id=session_id, user_id=current_user.id).first_or_404()
     report = ReportData.query.filter_by(session_id=session_id).first()
     
     if not report:
@@ -241,6 +248,139 @@ def generate_technical_notes(session):
 def too_large(e):
     flash('File too large. Maximum size is 16MB.', 'error')
     return redirect(url_for('upload_page'))
+
+@app.route('/uploads/<filename>')
+def uploaded_file(filename):
+    """Serve uploaded images"""
+    return send_file(os.path.join(app.config['UPLOAD_FOLDER'], filename))
+
+@app.route('/generated/<filename>')
+def generated_file(filename):
+    """Serve generated images"""
+    return send_file(os.path.join(app.config['GENERATED_FOLDER'], filename))
+
+# Authentication routes
+@app.route('/login', methods=['GET', 'POST'])
+def login():
+    """User login"""
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    
+    if request.method == 'POST':
+        username = request.form.get('username')
+        password = request.form.get('password')
+        remember = bool(request.form.get('remember'))
+        
+        if not username or not password:
+            flash('Please fill in all fields', 'error')
+            return render_template('login.html')
+        
+        user = User.query.filter_by(username=username).first()
+        
+        if user and user.check_password(password):
+            login_user(user, remember=remember)
+            user.last_login = datetime.utcnow()
+            db.session.commit()
+            
+            next_page = request.args.get('next')
+            flash(f'Welcome back, {user.first_name}!', 'success')
+            return redirect(next_page if next_page else url_for('dashboard'))
+        else:
+            flash('Invalid username or password', 'error')
+    
+    return render_template('login.html')
+
+@app.route('/register', methods=['GET', 'POST'])
+def register():
+    """User registration"""
+    if current_user.is_authenticated:
+        return redirect(url_for('dashboard'))
+    
+    if request.method == 'POST':
+        # Get form data
+        first_name = request.form.get('first_name')
+        last_name = request.form.get('last_name')
+        username = request.form.get('username')
+        email = request.form.get('email')
+        # institution field removed
+        role = request.form.get('role')
+        password = request.form.get('password')
+        confirm_password = request.form.get('confirm_password')
+        
+        # Validation
+        if not all([first_name, last_name, username, email, password, confirm_password]):
+            flash('Please fill in all required fields', 'error')
+            return render_template('register.html')
+        
+        if password != confirm_password:
+            flash('Passwords do not match', 'error')
+            return render_template('register.html')
+        
+        if password and len(password) < 6:
+            flash('Password must be at least 6 characters long', 'error')
+            return render_template('register.html')
+        
+        # Check if username or email already exists
+        if User.query.filter_by(username=username).first():
+            flash('Username already exists', 'error')
+            return render_template('register.html')
+        
+        if User.query.filter_by(email=email).first():
+            flash('Email already registered', 'error')
+            return render_template('register.html')
+        
+        # Create new user
+        user = User()
+        user.first_name = first_name
+        user.last_name = last_name
+        user.username = username
+        user.email = email
+        # institution field removed
+        user.role = 'user'
+        user.set_password(password)
+        
+        db.session.add(user)
+        db.session.commit()
+        
+        flash('Registration successful! You can now log in.', 'success')
+        return redirect(url_for('login'))
+    
+    return render_template('register.html')
+
+@app.route('/logout')
+@login_required
+def logout():
+    """User logout"""
+    logout_user()
+    flash('You have been logged out', 'info')
+    return redirect(url_for('index'))
+
+@app.route('/dashboard')
+@login_required
+def dashboard():
+    """User dashboard"""
+    # Get user's recent analysis sessions
+    sessions = AnalysisSession.query.filter_by(user_id=current_user.id).order_by(AnalysisSession.created_at.desc()).limit(10).all()
+    
+    # Calculate statistics
+    total_sessions = AnalysisSession.query.filter_by(user_id=current_user.id).count()
+    completed_sessions = AnalysisSession.query.filter_by(user_id=current_user.id, processing_status='completed').count()
+    failed_sessions = AnalysisSession.query.filter_by(user_id=current_user.id, processing_status='failed').count()
+    
+    stats = {
+        'total_sessions': total_sessions,
+        'completed_sessions': completed_sessions,
+        'failed_sessions': failed_sessions,
+        'success_rate': (completed_sessions / total_sessions * 100) if total_sessions > 0 else 0
+    }
+    
+    return render_template('dashboard.html', sessions=sessions, stats=stats)
+
+@app.route('/profile')
+@login_required
+def profile():
+    """User profile page"""
+    return render_template('profile.html')
 
 @app.errorhandler(404)
 def not_found(e):

@@ -17,10 +17,25 @@
                         Transform H&E stained tissue slides into virtual IHC images using advanced deep learning, 
                         then predict cancer severity for comprehensive diagnostic reporting.
                     </p>
-                    <a href="{{ url_for('upload_page') }}" class="btn btn-light btn-lg">
-                        <i data-feather="upload"></i>
-                        Start Analysis
+                    {% if current_user.is_authenticated %}
+                    <a href="{{ url_for('dashboard') }}" class="btn btn-light btn-lg me-3">
+                        <i data-feather="activity"></i>
+                        Dashboard
                     </a>
+                    <a href="{{ url_for('upload_page') }}" class="btn btn-outline-light btn-lg">
+                        <i data-feather="upload"></i>
+                        New Analysis
+                    </a>
+                    {% else %}
+                    <a href="{{ url_for('register') }}" class="btn btn-light btn-lg me-3">
+                        <i data-feather="user-plus"></i>
+                        Get Started
+                    </a>
+                    <a href="{{ url_for('login') }}" class="btn btn-outline-light btn-lg">
+                        <i data-feather="log-in"></i>
+                        Sign In
+                    </a>
+                    {% endif %}
                 </div>
                 <div class="col-md-4 text-center">
                     <i data-feather="eye" style="width: 120px; height: 120px;"></i>
@@ -180,13 +195,39 @@
     </div>
 </div>
 
+{% if not current_user.is_authenticated %}
+<div class="row mb-5">
+    <div class="col-12 text-center">
+        <div class="card bg-light">
+            <div class="card-body py-5">
+                <h3 class="mb-4">
+                    <i data-feather="user-check"></i>
+                    Ready to Get Started?
+                </h3>
+                <p class="lead mb-4">
+                    Create your free account to access the Virtual IHC Analysis System
+                </p>
+                <a href="{{ url_for('register') }}" class="btn btn-primary btn-lg btn-custom me-3">
+                    <i data-feather="user-plus"></i>
+                    Create Account
+                </a>
+                <a href="{{ url_for('login') }}" class="btn btn-outline-primary btn-lg">
+                    <i data-feather="log-in"></i>
+                    Sign In
+                </a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endif %}
+
 <div class="row">
     <div class="col-12 text-center">
-        <div class="alert alert-warning">
-            <i data-feather="alert-triangle"></i>
-            <strong>Academic Project Notice:</strong> 
-            This system is developed for research and educational purposes. 
-            Results should be validated with traditional IHC methods for clinical decision-making.
+        <div class="alert alert-info">
+            <i data-feather="info"></i>
+            <strong>Professional Notice:</strong> 
+            This AI-powered system provides advanced diagnostic support. 
+            Results should be validated with traditional methods for critical clinical decisions.
         </div>
     </div>
 </div>

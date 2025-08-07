@@ -1,0 +1,141 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Virtual IHC Analysis System{% endblock %}
+
+{% block content %}
+<div class="row">
+    <div class="col-12">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <h2>
+                <i data-feather="activity"></i>
+                Welcome, {{ current_user.first_name }}!
+            </h2>
+            <a href="{{ url_for('upload_page') }}" class="btn btn-primary btn-custom">
+                <i data-feather="upload"></i>
+                New Analysis
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Statistics Cards -->
+<div class="row mb-4">
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card card-hover bg-primary text-white">
+            <div class="card-body text-center">
+                <i data-feather="file-text" class="stat-icon"></i>
+                <div class="stat-number">{{ stats.total_sessions }}</div>
+                <div class="stat-label">Total Analyses</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card card-hover bg-success text-white">
+            <div class="card-body text-center">
+                <i data-feather="check-circle" class="stat-icon"></i>
+                <div class="stat-number">{{ stats.completed_sessions }}</div>
+                <div class="stat-label">Completed</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card card-hover bg-danger text-white">
+            <div class="card-body text-center">
+                <i data-feather="x-circle" class="stat-icon"></i>
+                <div class="stat-number">{{ stats.failed_sessions }}</div>
+                <div class="stat-label">Failed</div>
+            </div>
+        </div>
+    </div>
+    <div class="col-md-3 mb-3">
+        <div class="card stat-card card-hover bg-info text-white">
+            <div class="card-body text-center">
+                <i data-feather="trending-up" class="stat-icon"></i>
+                <div class="stat-number">{{ "%.1f"|format(stats.success_rate) }}%</div>
+                <div class="stat-label">Success Rate</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Recent Analyses -->
+<div class="row">
+    <div class="col-12">
+        <div class="card">
+            <div class="card-header">
+                <h4 class="card-title mb-0">
+                    <i data-feather="clock"></i>
+                    Recent Analyses
+                </h4>
+            </div>
+            <div class="card-body">
+                {% if sessions %}
+                <div class="table-responsive">
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th>Session ID</th>
+                                <th>Original File</th>
+                                <th>Status</th>
+                                <th>HER2 Result</th>
+                                <th>Date</th>
+                                <th>Actions</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for session in sessions %}
+                            <tr>
+                                <td>
+                                    <code>{{ session.session_id[:8] }}...</code>
+                                </td>
+                                <td>{{ session.original_filename }}</td>
+                                <td>
+                                    <span class="badge {{ 'bg-success' if session.processing_status == 'completed' else 'bg-warning' if session.processing_status == 'processing' else 'bg-danger' }}">
+                                        {{ session.processing_status.upper() }}
+                                    </span>
+                                </td>
+                                <td>
+                                    {% if session.her2_prediction %}
+                                        <span class="badge {{ 'bg-danger' if session.her2_prediction == 'positive' else 'bg-success' if session.her2_prediction == 'negative' else 'bg-warning' }}">
+                                            {{ session.her2_prediction.upper() }}
+                                        </span>
+                                    {% else %}
+                                        <span class="text-muted">-</span>
+                                    {% endif %}
+                                </td>
+                                <td>{{ session.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a href="{{ url_for('results', session_id=session.session_id) }}" 
+                                           class="btn btn-outline-primary btn-sm">
+                                            <i data-feather="eye"></i>
+                                        </a>
+                                        {% if session.processing_status == 'completed' %}
+                                        <a href="{{ url_for('report', session_id=session.session_id) }}" 
+                                           class="btn btn-outline-info btn-sm">
+                                            <i data-feather="file-text"></i>
+                                        </a>
+                                        {% endif %}
+                                    </div>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i data-feather="upload-cloud" style="width: 64px; height: 64px;" class="text-muted mb-3"></i>
+                    <h5>No analyses yet</h5>
+                    <p class="text-muted mb-3">Start by uploading your first H&E stained slide</p>
+                    <a href="{{ url_for('upload_page') }}" class="btn btn-primary btn-custom">
+                        <i data-feather="upload"></i>
+                        Upload First Image
+                    </a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

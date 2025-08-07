@@ -23,6 +23,7 @@ dependencies = [
     "torch>=2.8.0",
     "scikit-image>=0.25.2",
     "matplotlib>=3.10.5",
+    "pymysql>=1.1.1",
 ]
 
 [[tool.uv.index]]

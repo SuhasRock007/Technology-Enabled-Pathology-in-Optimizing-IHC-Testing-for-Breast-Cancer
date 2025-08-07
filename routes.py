@@ -186,14 +186,15 @@ def generate_summary(session):
     grade = session.cancer_grade or "Not determined"
     
     return f"""
-    HER2 Expression Analysis Summary:
+    Summary: AI analysis shows HER2 status as {her2_status.upper()} with {confidence:.1%} confidence.
     
-    HER2 Status: {her2_status.upper()} (Confidence: {confidence:.1%})
-    Cancer Grade: {grade}
-    Biomarker Expression: {session.biomarker_percentage:.1f}% of analyzed tissue
-    Staining Intensity: {session.staining_intensity or 'Not assessed'}
+    Key Findings:
+    • HER2 Status: {her2_status.upper()}
+    • Cancer Grade: {grade}
+    • Biomarker Expression: {session.biomarker_percentage:.1f}%
+    • Staining Intensity: {session.staining_intensity or 'Not assessed'}
     
-    This analysis was performed using virtual IHC generation from H&E stained tissue sections.
+    Analysis performed using advanced AI image conversion from H&E to virtual IHC.
     """
 
 def generate_recommendations(session):

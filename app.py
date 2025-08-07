@@ -26,10 +26,11 @@ login_manager.login_view = 'login'
 login_manager.login_message = 'Please log in to access this page.'
 login_manager.login_message_category = 'info'
 
-# Configure the database - PostgreSQL
+# Configure the database - MySQL for XAMPP
+# Default XAMPP: root user with no password, database: virtual_ihc_db
 app.config["SQLALCHEMY_DATABASE_URI"] = os.environ.get(
     "DATABASE_URL", 
-    "postgresql://user:password@localhost/virtual_ihc_db"
+    "mysql+pymysql://root:@localhost/virtual_ihc_db?charset=utf8mb4"
 )
 app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
     "pool_recycle": 300,

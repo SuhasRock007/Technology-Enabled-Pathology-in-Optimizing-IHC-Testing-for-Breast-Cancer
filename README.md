@@ -110,32 +110,32 @@ IHCGenie/
 ### 1️⃣ Clone this repository
 ```bash
 git clone https://github.com/YOUR_USERNAME/IHCGenie.git
-cd IHCGenie
+cd IHCGenie```
 
 ### 2️⃣ Install dependencies
-pip install -r requirements.txt
+```pip install -r requirements.txt```
 
 ### 3️⃣ Add your ML models
 
-Place your model files in:
+```Place your model files in:
 
 models/
 
 
-(They are ignored from Git for size reasons.)
+(They are ignored from Git for size reasons.)```
 
 ## ▶️ Running the Application
-python app.py
+```python app.py
 
 
 Then open:
 
-http://127.0.0.1:5000
+http://127.0.0.1:5000```
 
 
 ## 🚀 Future Enhancements
 
-Deploy on cloud (AWS / Render / Azure)
+```Deploy on cloud (AWS / Render / Azure)
 
 Add multi-class severity prediction
 
@@ -143,12 +143,12 @@ Improve IHC conversion quality
 
 Add progress bar for processing
 
-Support whole-slide images (WSI)
+Support whole-slide images (WSI)```
 
 
 ## 📚 Credits / References
 
-This project was built for learning purposes using guidance from:
+```This project was built for learning purposes using guidance from:
 
 Flask documentation
 
@@ -158,7 +158,7 @@ YouTube tutorials
 
 Online research papers on H&E → IHC conversion
 
-Roboflow datasets & examples
+Roboflow datasets & examples```
 
 
 ---

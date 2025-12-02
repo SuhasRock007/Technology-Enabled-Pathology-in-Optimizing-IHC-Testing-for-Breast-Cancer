@@ -112,10 +112,10 @@ IHCGenie/
 git clone https://github.com/YOUR_USERNAME/IHCGenie.git
 cd IHCGenie
 
-2️⃣ Install dependencies
+###2️⃣ Install dependencies
 pip install -r requirements.txt
 
-3️⃣ Add your ML models
+###3️⃣ Add your ML models
 
 Place your model files in:
 
@@ -124,7 +124,7 @@ models/
 
 (They are ignored from Git for size reasons.)
 
-▶️ Running the Application
+##▶️ Running the Application
 python app.py
 
 
@@ -132,7 +132,8 @@ Then open:
 
 http://127.0.0.1:5000
 
-🚀 Future Enhancements
+
+##🚀 Future Enhancements
 
 Deploy on cloud (AWS / Render / Azure)
 
@@ -144,7 +145,8 @@ Add progress bar for processing
 
 Support whole-slide images (WSI)
 
-📚 Credits / References
+
+##📚 Credits / References
 
 This project was built for learning purposes using guidance from:
 

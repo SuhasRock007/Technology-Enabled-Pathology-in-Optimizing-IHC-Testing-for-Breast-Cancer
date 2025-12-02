@@ -38,9 +38,10 @@ app.config["SQLALCHEMY_ENGINE_OPTIONS"] = {
 }
 
 # Configure upload settings
-app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size
-app.config['UPLOAD_FOLDER'] = 'uploads'
-app.config['GENERATED_FOLDER'] = 'generated'
+app.config['MAX_CONTENT_LENGTH'] = 16 * 1024 * 1024  # 16MB max file size 
+
+app.config['UPLOAD_FOLDER'] = os.path.join(app.root_path, 'uploads')
+app.config['GENERATED_FOLDER'] = os.path.join(app.root_path, 'generated')
 
 # Create upload directories if they don't exist
 os.makedirs(app.config['UPLOAD_FOLDER'], exist_ok=True)

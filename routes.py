@@ -250,12 +250,12 @@ def too_large(e):
     flash('File too large. Maximum size is 16MB.', 'error')
     return redirect(url_for('upload_page'))
 
-@app.route('/uploads/<filename>')
+@app.route('/static/uploads/<filename>')
 def uploaded_file(filename):
     """Serve uploaded images"""
     return send_file(os.path.join(app.config['UPLOAD_FOLDER'], filename))
 
-@app.route('/generated/<filename>')
+@app.route('/static/generated/<filename>')
 def generated_file(filename):
     """Serve generated images"""
     return send_file(os.path.join(app.config['GENERATED_FOLDER'], filename))

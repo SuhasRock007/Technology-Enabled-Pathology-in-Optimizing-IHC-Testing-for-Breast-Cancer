@@ -54,7 +54,7 @@ Using the generated image or extracted features.
 | Component | Technology |
 |----------|------------|
 | Backend | Python, Flask |
-| ML / DL | PyTorch / TensorFlow (depending on your model) |
+| ML / DL | PyTorch / TensorFlow |
 | Image Processing | OpenCV, Pillow |
 | Frontend | HTML, CSS, Jinja Templates |
 | Database | SQLite / MySQL |
@@ -63,35 +63,33 @@ Using the generated image or extracted features.
 ---
 
 ## 🏗 Project Architecture
-
 User Upload → Preprocessing → H&E → IHC Generator Model → Severity Predictor → Report Output
-
 
 ---
 
 ## 📁 Folder Structure
-
+```
 IHCGenie/
-│── app.py # Flask app entry point
-│── routes.py # Routes & endpoints
-│── utils.py # Helper functions
-│── models/ # ML models (ignored in git)
+│── app.py
+│── routes.py
+│── utils.py
+│── models/
 │── static/
-│ ├── css/
-│ ├── js/
-│ └── images/
+│   ├── css/
+│   ├── js/
+│   └── images/
 │── templates/
-│ ├── upload.html
-│ ├── results.html
-│ └── home.html
+│   ├── upload.html
+│   ├── results.html
+│   └── home.html
 │── database/
-│ └── sessions.db
-│── uploads/ # Uploaded images
-│── outputs/ # Generated IHC images
+│   └── sessions.db
+│── uploads/
+│── outputs/
 │── README.md
 │── requirements.txt
 └── .gitignore
-
+```
 
 ---
 
@@ -110,55 +108,55 @@ IHCGenie/
 ### 1️⃣ Clone this repository
 ```bash
 git clone https://github.com/YOUR_USERNAME/IHCGenie.git
-cd IHCGenie```
+cd IHCGenie
+```
 
 ### 2️⃣ Install dependencies
-```pip install -r requirements.txt```
+```bash
+pip install -r requirements.txt
+```
 
 ### 3️⃣ Add your ML models
-
-```Place your model files in:
-
+Place your model files in:
+```
 models/
+```
+(They are ignored from Git for size reasons.)
 
-
-(They are ignored from Git for size reasons.)```
+---
 
 ## ▶️ Running the Application
-```python app.py
 
+### 4️⃣ Start the Flask server
+```bash
+python app.py
+```
 
 Then open:
+```
+http://127.0.0.1:5000
+```
 
-http://127.0.0.1:5000```
-
+---
 
 ## 🚀 Future Enhancements
 
-```Deploy on cloud (AWS / Render / Azure)
+### 5️⃣ Planned Improvements
+- Deploy on cloud (AWS / Render / Azure)  
+- Add multi-class severity prediction  
+- Improve IHC conversion quality  
+- Add progress bar for processing  
+- Support whole-slide images (WSI)
 
-Add multi-class severity prediction
-
-Improve IHC conversion quality
-
-Add progress bar for processing
-
-Support whole-slide images (WSI)```
-
+---
 
 ## 📚 Credits / References
 
-```This project was built for learning purposes using guidance from:
-
-Flask documentation
-
-PyTorch/TensorFlow tutorials
-
-YouTube tutorials
-
-Online research papers on H&E → IHC conversion
-
-Roboflow datasets & examples```
-
+### 6️⃣ Learning Sources
+- Flask documentation  
+- PyTorch / TensorFlow tutorials  
+- YouTube tutorials  
+- Research papers on H&E → IHC conversion  
+- Roboflow datasets & examples  
 
 ---
